@@ -2,28 +2,24 @@
 
 
 # Table of Contents  <!-- omit in toc -->
-- [TODO - WORK IN PROGRESS](#todo---work-in-progress)
 - [Introduction](#introduction)
 - [AWS Solution](#aws-solution)
 - [CloudFormation Code](#cloudformation-code)
 - [Demonstration Manuscript](#demonstration-manuscript)
 - [Suggestions How to Continue this Demonstration](#suggestions-how-to-continue-this-demonstration)
 
-# TODO - WORK IN PROGRESS
-
-TODO: I remove this chapter once this demonstration is ready.
 
 # Introduction
 
 This demonstration can be used in training new cloud specialists who don't need to have any prior knowledge of AWS but who want to start working on AWS projects and building their AWS competence.
 
-This demonstration is basically the same as [aws-intro-demo](https://github.com/tieto-pc/aws-intro-demo) with one difference: aws-intro-demo uses Terraform as IaC tool, this demonstration uses [CloudFormation](https://aws.amazon.com/cloudformation). The idea is to provide another way to create infrastructure code in AWS and let developers to compare Terraform and CloudFormation and make their own decision which tool to use in their future projects.
+This demonstration is basically the same as [aws-intro-demo](https://github.com/tieto-pc/aws-intro-demo) with one difference: aws-intro-demo uses [Terraform](https://www.terraform.io/) as IaC tool, and this demonstration uses [CloudFormation](https://aws.amazon.com/cloudformation). The idea is to introduce another way to create infrastructure code in AWS and let developers to compare Terraform and CloudFormation and make their own decision which tool to use in their future projects.
 
 This project demonstrates basic aspects how to create cloud infrastructure using code. The actual infra is very simple: just one EC2 instance. We create a virtual private cloud [vpc](https://aws.amazon.com/vpc/) and an application subnet into which we create the [EC2](https://aws.amazon.com/ec2/). There is also one [security group](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) in the application subnet that allows inbound traffic only using ssh port 22. The infra creates private/public keys and installs the public key to the EC2 instance - you get the private key for connecting to the EC2 instance once you have deployed the infra.
 
 I tried to keep this demonstration as simple as possible. The main purpose is not to provide an example how to create a cloud system (e.g. not recommending EC2s over containers) but to provide a very simple example of infrastructure code and tooling related creating the infra. I have provided some suggestions how to continue this demonstration at the end of this document - you can also send me email to my corporate email and suggest what kind of AWS or AWS POCs you need in your AS team - I can help you to create the POCs for your customer meetings.
 
-NOTE: There is an equivalent Azure demonstration - [azure-intro-demo](https://github.com/tieto-pc/azure-intro-demo) - compare the terraform code between these AWS and Azure infra implementations and you realize how similar they are.
+NOTE: There are an equivalent Azure demonstrations - [azure-intro-demo](https://github.com/tieto-pc/azure-intro-demo) and [azure-intro-arm-demo](https://github.com/tieto-pc/azure-intro-arm-demo)- compare the AWS and Azure implementations and you realize how similar they are.
 
 
 # AWS Solution
