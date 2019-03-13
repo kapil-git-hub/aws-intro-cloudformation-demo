@@ -122,6 +122,8 @@ Resources:
       KeyName: !Ref KeyName
       IamInstanceProfile: !Ref MyEC2IamInstanceProfile
       Tags:
+        - Key: Name
+          Value: !Join ["", [!Ref Prefix, "-", !Ref Env, "-ec2"]]
         - Key: CloudFormation
           Value: !Ref 'AWS::StackId'
       NetworkInterfaces:
@@ -138,3 +140,4 @@ Outputs:
       - - !GetAtt
           - MyEC2Instance
           - PublicIp
+
