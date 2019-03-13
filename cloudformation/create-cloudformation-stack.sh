@@ -13,5 +13,5 @@ MY_REGION=$3
 MY_KEY=$4
 YAML_FILE_NAME=$5
 
-aws cloudformation create-stack --region=$MY_REGION --template-body file://$YAML_FILE_NAME --stack-name ${MY_PREFIX}-${MY_ENV}-stack --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=Env,ParameterValue=$MY_ENV ParameterKey=Prefix,ParameterValue=$MY_PREFIX ParameterKey=KeyName,ParameterValue=$MY_KEY
+aws cloudformation create-stack --region=${MY_REGION} --template-body file://${YAML_FILE_NAME} --stack-name ${MY_PREFIX}-${MY_ENV}-stack --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=Env,ParameterValue=${MY_ENV} ParameterKey=Prefix,ParameterValue=${MY_PREFIX} ParameterKey=KeyName,ParameterValue=${MY_KEY}
 
