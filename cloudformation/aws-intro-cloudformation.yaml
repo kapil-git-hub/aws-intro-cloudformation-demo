@@ -24,120 +24,133 @@ Parameters:
     ConstraintDescription: A valid EC2 instance type.
   KeyName:
     Description: An existing EC2 KeyPair.
-    Type: 'AWS::EC2::KeyPair::KeyName'
+    Type: "AWS::EC2::KeyPair::KeyName"
     ConstraintDescription: An existing EC2 KeyPair.
   AmiId:
     Description: An existing AMI.
-    Type: String
+    Type: AWS::EC2::Image::Id
     Default: ami-00035f41c82244dab
     ConstraintDescription: An existing AMI id.
 Resources:
   VPC:
-    Type: 'AWS::EC2::VPC'
+    Type: "AWS::EC2::VPC"
     Properties:
       CidrBlock: 10.60.0.0/16
       Tags:
+        - Key: Name
+          Value: !Join ["", [!Ref Prefix, "-", !Ref Env, "-vpc"]]
         - Key: CloudFormation
-          Value: !Ref 'AWS::StackId'
+          Value: !Ref "AWS::StackId"
   Subnet:
-    Type: 'AWS::EC2::Subnet'
+    Type: "AWS::EC2::Subnet"
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.60.1.0/24
       Tags:
+        - Key: Name
+          Value: !Join ["", [!Ref Prefix, "-", !Ref Env, "-app-subnet"]]
         - Key: CloudFormation
-          Value: !Ref 'AWS::StackId'
+          Value: !Ref "AWS::StackId"
   InternetGateway:
-    Type: 'AWS::EC2::InternetGateway'
+    Type: "AWS::EC2::InternetGateway"
     Properties:
       Tags:
+        - Key: Name
+          Value: !Join ["", [!Ref Prefix, "-", !Ref Env, "-ig"]]
         - Key: CloudFormation
-          Value: !Ref 'AWS::StackId'
+          Value: !Ref "AWS::StackId"
   AttachGateway:
-    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Type: "AWS::EC2::VPCGatewayAttachment"
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
   RouteTable:
-    Type: 'AWS::EC2::RouteTable'
+    Type: "AWS::EC2::RouteTable"
     Properties:
       VpcId: !Ref VPC
       Tags:
+        - Key: Name
+          Value: !Join ["", [!Ref Prefix, "-", !Ref Env, "-app-subnet-route-table"]]
         - Key: CloudFormation
-          Value: !Ref 'AWS::StackId'
+          Value: !Ref "AWS::StackId"
   Route:
-    Type: 'AWS::EC2::Route'
+    Type: "AWS::EC2::Route"
     DependsOn: AttachGateway
     Properties:
       RouteTableId: !Ref RouteTable
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
   SubnetRouteTableAssociation:
-    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties:
       SubnetId: !Ref Subnet
       RouteTableId: !Ref RouteTable
   IPAddress:
-    Type: 'AWS::EC2::EIP'
+    Type: "AWS::EC2::EIP"
     DependsOn: AttachGateway
     Properties:
       Domain: vpc
       InstanceId: !Ref MyEC2Instance
   SubnetSecurityGroup:
-    Type: 'AWS::EC2::SecurityGroup'
+    Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupName: !Join ["", [!Ref Prefix, "-", !Ref Env, "-vpc-app-subnet-sg"]]
+      GroupName: !Join ["", [!Ref Prefix, "-", !Ref Env, "-app-subnet-sg"]]
       VpcId: !Ref VPC
       GroupDescription: SSH access.
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
-          CidrIp: '0.0.0.0/0'
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0"
+      Tags:
+        - Key: Name
+          Value: !Join ["", [!Ref Prefix, "-", !Ref Env, "-app-subnet-sg"]]
+        - Key: CloudFormation
+          Value: !Ref "AWS::StackId"
   MyEC2InstanceRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Join ["", [!Ref Prefix, "-", !Ref Env, "-iam-role"]]
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-        - Effect: Allow
-          Action:
-          - sts:AssumeRole
-          Principal:
-            Service:
-            - ec2.amazonaws.com
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - ec2.amazonaws.com
       Path: "/"
   MyEC2IamInstanceProfile:
-    Type: 'AWS::IAM::InstanceProfile'
+    Type: "AWS::IAM::InstanceProfile"
     Properties:
       Roles:
-      - !Ref MyEC2InstanceRole
+        - !Ref MyEC2InstanceRole
       Path: /
   MyEC2Instance:
-    Type: 'AWS::EC2::Instance'
+    Type: "AWS::EC2::Instance"
     DependsOn: AttachGateway
     Properties:
       ImageId: !Ref AmiId
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
       IamInstanceProfile: !Ref MyEC2IamInstanceProfile
+      NetworkInterfaces:
+        - GroupSet:
+            - !Ref SubnetSecurityGroup
+          AssociatePublicIpAddress: true
+          DeviceIndex: "0"
+          DeleteOnTermination: true
+          SubnetId: !Ref Subnet
       Tags:
         - Key: Name
           Value: !Join ["", [!Ref Prefix, "-", !Ref Env, "-ec2"]]
         - Key: CloudFormation
-          Value: !Ref 'AWS::StackId'
-      NetworkInterfaces:
-        - GroupSet:
-            - !Ref SubnetSecurityGroup
-          AssociatePublicIpAddress: 'true'
-          DeviceIndex: '0'
-          DeleteOnTermination: 'true'
-          SubnetId: !Ref Subnet
+          Value: !Ref "AWS::StackId"
 Outputs:
   URL:
     Value: !Join
-      - ''
+      - ""
       - - !GetAtt
           - MyEC2Instance
           - PublicIp
-
